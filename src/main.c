@@ -49,7 +49,9 @@ uint8_t test_val=0;
 
 int main(){
 
-	RCCInit();
+	//RCCInit();
+	SystemInit();
+
 	USARTInit();
 //
 	_puts("\x1b[2J\x1b[H");  // clear terminal
