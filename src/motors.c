@@ -39,19 +39,19 @@ void MotorsPWMInit(){
 	TIM_OCInitTypeDef TIM_OCInitStruct;
 	TIM_OCInitStruct.TIM_OCMode 		= TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OutputState	= TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse 			= 2;				// %
+	TIM_OCInitStruct.TIM_Pulse 			= 0;				// %
 	TIM_OCInitStruct.TIM_OCPolarity 	= TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OCIdleState 	= TIM_OCIdleState_Set;
 
 	TIM_OC1Init(TIM1, &TIM_OCInitStruct);
 
-	TIM_OCInitStruct.TIM_Pulse = 2;
+	TIM_OCInitStruct.TIM_Pulse = 0;
 	TIM_OC2Init(TIM1, &TIM_OCInitStruct);
 
-	TIM_OCInitStruct.TIM_Pulse = 2;
+	TIM_OCInitStruct.TIM_Pulse = 0;
 	TIM_OC3Init(TIM1, &TIM_OCInitStruct);
 
-	TIM_OCInitStruct.TIM_Pulse = 2;
+	TIM_OCInitStruct.TIM_Pulse = 0;
 	TIM_OC4Init(TIM1, &TIM_OCInitStruct);
 
 

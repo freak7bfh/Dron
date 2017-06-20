@@ -9,6 +9,9 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+void Sort_Signed(int16_t A[], uint8_t L);
+float gToDegrees(float V, float H);
+
 #define SYSTICK_CLK_FREQ 48000000
 #define SYS_CLOCK 48	// MHz
 

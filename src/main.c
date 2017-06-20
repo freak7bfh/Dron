@@ -17,19 +17,35 @@
 #include "stdlib.h"
 #include "motors.h"
 #include "adc.h"
+#include "lis3dh.h"
+#include "math.h"
 
 
 volatile uint8_t RxIndeksRS=0;
 volatile uint8_t RxBufRS[RS_BUFF];
-volatile uint8_t systick_leds=0x00;
+volatile uint8_t systick_leds=0;
 volatile uint16_t adc_val=0;
 volatile uint8_t bat_led_flags=0;
 volatile uint8_t led_flags=0;
 
 char str_buf[8]={0};
-uint8_t duty=0;
+uint8_t duty=1;
 uint16_t voltage=10000;
 
+// lis *****************
+uint8_t test_frame[8]={100,200,123,24,115,166,217,80};
+
+uint8_t MSB, LSB;
+int16_t Xg, Zg;                                 // 16-bit values from accelerometer
+int16_t x_array[100];                           // 100 samples for X-axis
+int16_t z_array[100];                           // 100 samples for Z-axis
+float x_average;                                // x average of samples
+float z_average;                                // z average of samples
+float zx_theta;                                 // degrees between Z and X planes
+
+uint8_t test_val=0;
+
+// *********************
 
 int main(){
 
@@ -70,7 +86,11 @@ int main(){
 	_putsn("MOTORS Init  OK");
 
 	ADCInit();
-	_putsn("ADC Init     OK\r\n");
+	_putsn("ADC Init     OK");
+
+	Lis3dhInit();
+	_putsn("LIS3DH Init  TEST\r\n");
+
 
 	_putsn("\r\nChange duty: '+' / '-'\r\n");
 
@@ -78,42 +98,79 @@ int main(){
 
 	B_OFF;
 
+
+
+
+// lis ********************
+//
+//	/* ---------------- Local Macros ----------------- */
+//
+//	/* set read single command. Attention: command must be 0x3F at most */
+//	#define SET_READ_SINGLE_CMD(x)			(x | 0x80)
+//	/* set read multiple command. Attention: command must be 0x3F at most */
+//	#define SET_READ_MULTI_CMD(x)			(x | 0xC0)
+//	/* set write single command. Attention: command must be 0x3F at most */
+//	#define SET_WRITE_SINGLE_CMD(x)			(x & (~(0xC0)))
+//	/* set write multiple command. Attention: command must be 0x3F at most */
+//	#define SET_WRITE_MULTI_CMD(x)			(x & (~(0x80)) x |= 0x40)
+
+//	while(1){
+//		SPI_SendData8(SPI1, 0x0f);
+//		Delay_ms(10);
+//		test_val=SPI_ReceiveData8(SPI1);
+//		Delay_ms(10);
+//		USART_SendData(USART1,test_val);
+//		Delay_ms(500);
+//
+//	}
+
+
+	SPI_SendData(0x23, 0xc9);                         // resetting the accelerometer internal circuit
+	SPI_SendData(0x20, 0x67);                         // 100Hz data update rate, block data update disable, x/y/z enabled
+	SPI_SendData(0x24, 0x20);                         // Anti aliasing filter bandwidth 800Hz, 16G (very sensitive), no self-test, 4-wire interface
+	SPI_SendData(0x10, 0x00);                         // Output(X) = Measurement(X) - OFFSET(X) * 32;
+	SPI_SendData(0x11, 0x00);                         // Output(Y) = Measurement(Y) - OFFSET(Y) * 32;
+	SPI_SendData(0x12, 0x00);                         // Output(Z) = Measurement(Z) - OFFSET(Z) * 32;
+
+// ************************
+
 	while(1){
 		SET_BIT(led_flags,0);
 
 
 
 		adc_val=GetVoltage();
-		if(voltage>adc_val || duty!=TIM1->CCR1){
-			_puts("\x1b[15;0H");	// move to line 15
-			_puts("\x1b[2K\x1b[G");	// clear line
-			_puts("Battery voltage: ");
-			itoa(adc_val,str_buf,10);
-			_puts(str_buf);
-			_puts(" mV ");
 
-			_puts("\x1b[16;0H");	// move to line 16
-			_puts("\x1b[2K\x1b[G");	// clear line
-			_puts("Battery condition: ")
+		_puts("\x1b[15;0H");	// move to line 15
+		_puts("\x1b[2K\x1b[G");	// clear line
 
-			if(adc_val>=4000){
-				_puts("FULL");
-				bat_led_flags=0;
-			}
-			if(adc_val>=3700 && adc_val<4000){
-				_puts("GOOD");
-				bat_led_flags=0;
-			}
-			if(adc_val>=3550 && adc_val<3700){
-				_puts("LOW WARNING");
-				bat_led_flags=1;
-			}
-			if(adc_val<3550){
-				_puts("CRITICAL LOW - TURN THE DEVICE OFF IMMEDIATELY");
-				bat_led_flags=2;
-			}
-			voltage=adc_val;
+		_puts("Battery voltage: ");
+		itoa(adc_val,str_buf,10);
+		_puts(str_buf);
+		_puts(" mV ");
+
+		_puts("\x1b[16;0H");	// move to line 16
+		_puts("\x1b[2K\x1b[G");	// clear line
+		_puts("Battery condition: ")
+
+		if(adc_val>=4000){
+			_puts("FULL");
+			bat_led_flags=0;
 		}
+		if(adc_val>=3700 && adc_val<4000){
+			_puts("GOOD");
+			bat_led_flags=0;
+		}
+		if(adc_val>=3550 && adc_val<3700){
+			_puts("LOW WARNING");
+			bat_led_flags=1;
+		}
+		if(adc_val<3550){
+			_puts("CRITICAL LOW - TURN THE DEVICE OFF IMMEDIATELY");
+			bat_led_flags=2;
+		}
+
+
 		//_puts("\x1b[3A"); // move cursor 2 lines up
 
 		if(duty!=TIM1->CCR1){
@@ -128,11 +185,105 @@ int main(){
 
 
 		Delay_ms(500);
+
+		// lis *******************
+/*
+		_puts("Motor power: ");
+		itoa(TIM1->CCR1,str_buf,10);
+		_puts(str_buf);
+		_putsn("%");
+
+		_puts("Battery voltage: ");
+		itoa(adc_val,str_buf,10);
+		_puts(str_buf);
+		_putsn(" mV ");
+*/
+
+//		for(uint8_t i = 0; i < 100; i++) {             // getting 100 samples
+//
+//			MSB = SPI_ReceiveData(0x29);              // X-axis MSB
+//			LSB = SPI_ReceiveData(0x28);              // X-axis LSB
+//			Xg = (MSB << 8) | (LSB);                  // Merging
+//			x_array[i] = Xg;
+//
+//			MSB = SPI_ReceiveData(0x2d);              // Z-axis MSB
+//			LSB = SPI_ReceiveData(0x2c);              // Z-axis LSB
+//			Zg = (MSB << 8) | (LSB);                  // Merging
+//			z_array[i] = Zg;
+//		}
+//
+//
+//	    Sort_Signed(x_array, 100);                  // Sorting min to max
+//	    Sort_Signed(z_array, 100);                  // Sorting min to max
+//
+//	    x_average /= 80;                            // dividing by the number of samples used
+//	    x_average /= -141;                          // converting to meters per second squared
+//
+//	    z_average /= 80;                            // dividing by the number of samples used
+//	    z_average /= -141;                          // converting to meters per second squared
+//
+//	    zx_theta = gToDegrees(z_average, x_average);                // getting the degrees between Z and X planes
+//
+//	    _puts("X: ");
+//	    itoa(x_average,str_buf,10);
+//	    _putsn(str_buf);
+//
+//	    _puts("Z: ");
+//	    itoa(z_average,str_buf,10);
+//		_putsn(str_buf);
+//
+//		_puts("XZt: ");
+//	   	 itoa(zx_theta,str_buf,10);
+//		_putsn(str_buf);
+//
+//		_puts("\x1b[3A");
+
+		// ***********************
 	}
 
 
 	return 0;
 }
+
+// lis ******************
+void Sort_Signed(int16_t A[], uint8_t L) {
+  uint8_t i = 0;
+  uint8_t status = 1;
+
+  while(status == 1){
+    status = 0;
+    for(i = 0; i < L-1; i++){
+      if (A[i] > A[i+1]){
+        A[i]^=A[i+1];
+        A[i+1]^=A[i];
+        A[i]^=A[i+1];
+        status = 1;
+      }
+    }
+  }
+}
+
+
+float gToDegrees(float V, float H)               // refer to the orientation pic above
+{
+  float retval;
+  uint16_t orientation;
+
+  if (H == 0) H = 0.001;                         // preventing division by zero
+  if (V == 0) V = 0.001;                         // preventing division by zero
+
+  if ((H > 0) && (V > 0)) orientation = 0;
+  if ((H < 0) && (V > 0)) orientation = 90;
+  if ((H < 0) && (V < 0)) orientation = 180;
+  if ((H > 0) && (V < 0)) orientation = 270;
+
+  retval = ((atan(V/H)/3.14159)*180);
+  if (retval < 0) retval += 90;
+  retval = abs(retval) + orientation;
+  return retval;
+}
+
+// **********************
 
 // ====== IRQ Handlers ======
 
@@ -295,9 +446,9 @@ void SysTick_Handler(){
 		LEDS_PORT->BSRR=LEDG_PIN;
 	}
 	if(IS_BIT_SET(led_flags,0) && systick_leds==2){
-			LEDS_PORT->BRR=LEDG_PIN;
-			RESET_BIT(led_flags,0);
-		}
+		LEDS_PORT->BRR=LEDG_PIN;
+		RESET_BIT(led_flags,0);
+	}
 
 	//if(systick_leds==70) LEDS_PORT->ODR^=LEDR_PIN;
 	//if(systick_leds==70) LEDS_PORT->BSRR=LEDR_PIN;

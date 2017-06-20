@@ -53,5 +53,9 @@ void ADCInit(){
 }
 
 uint16_t GetVoltage(){
-	return ADC1->DR*6.475;
+	uint32_t aproxv=0;
+	for(uint8_t i=0;i<100;i++)
+		aproxv+=ADC1->DR*6.475;
+
+	return aproxv/100.0;
 }
