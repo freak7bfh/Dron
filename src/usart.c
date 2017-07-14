@@ -57,6 +57,23 @@ void USARTSendNow(char *s){
 	while(!USART_GetFlagStatus(USART1, USART_FLAG_TC));
 }
 
+void USARTSendU8(uint8_t u8){
+	while(!USART_GetFlagStatus(USART1, USART_FLAG_TXE));
+	USART_SendData(USART1, u8);
+	while(!USART_GetFlagStatus(USART1, USART_FLAG_TC));
+}
+
+void USARTSendU16(uint16_t u16){
+	while(!USART_GetFlagStatus(USART1, USART_FLAG_TXE));
+	USART_SendData(USART1, (uint8_t)(u16>>8));
+	while(!USART_GetFlagStatus(USART1, USART_FLAG_TXE));
+	USART_SendData(USART1, (uint8_t)u16);
+
+	while(!USART_GetFlagStatus(USART1, USART_FLAG_TC));
+
+}
+
+
 void USARTSendFrame(uint8_t *frame, uint16_t frame_len){
 	for (uint16_t i = 0; i < frame_len; i++){
 		while(!USART_GetFlagStatus(USART1, USART_FLAG_TXE));

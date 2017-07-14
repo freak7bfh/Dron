@@ -20,6 +20,8 @@ char buffer[64];	// string buffer
 
 void USARTInit();
 void USARTSendNow(char *s);
+void USARTSendU8(uint8_t u8);
+void USARTSendU16(uint16_t u16);
 void USARTSendFrame(uint8_t *frame, uint16_t frame_len);
 
 #endif /* USART_H_ */
