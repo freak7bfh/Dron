@@ -54,17 +54,17 @@ int main(){
 
 	USARTInit();
 
-//	_puts("\x1b[2J\x1b[H");  // clear terminal
-//	_puts("\x1b[?25l");	// cursor invisible
-//
-//	_putsn("QUADRO-COPTER MOTOR DRIVER v0.1");
-//	_putsn("(C) 2017\r\n");
-//
-//	_putsn("UATRT Init   OK");
+	_puts("\x1b[2J\x1b[H");  // clear terminal
+	_puts("\x1b[?25l");	// cursor invisible
 
-	//SystemInit(); // ac6 external clock init
+	_putsn("QUADRO-COPTER MOTOR DRIVER v0.1");
+	_putsn("(C) 2017\r\n");
+
+	_putsn("UATRT Init   OK");
+
+
 	SysTick_Config(SYSTICK_CLK_FREQ/100);	// systick period 10ms
-//	_putsn("SysTick Init OK");
+	_putsn("SysTick Init OK");
 
 
 
@@ -77,24 +77,24 @@ int main(){
 	LEDS_InitStruct.GPIO_Speed	= GPIO_Speed_10MHz;
 	GPIO_Init(LEDS_PORT,&LEDS_InitStruct);
 
-//	_putsn("LEDS Init    OK");
+	_putsn("LEDS Init    OK");
 
 
 
 	DelayInit();
-//	_putsn("DELAY Init   OK");
+	_putsn("DELAY Init   OK");
 
 	MotorsPWMInit();
-//	_putsn("MOTORS Init  OK");
+	_putsn("MOTORS Init  OK");
 
 	ADCInit();
-//	_putsn("ADC Init     OK");
+	_putsn("ADC Init     OK");
 
-	Lis3dhInit();
+//	Lis3dhInit();
 //	_putsn("LIS3DH Init  TEST\r\n");
 
 
-//	_putsn("\r\nChange duty: '+' / '-'\r\n");
+	_putsn("\r\nChange duty: '+' / '-'\r\n");
 
 
 
@@ -117,37 +117,20 @@ int main(){
 //	#define SET_WRITE_MULTI_CMD(x)			(x & (~(0x80)) x |= 0x40)
 
 
-
 //	USARTSendU8(GetReg(0x0f));
-//
-//	//USARTSendU16(0x1234);
-
-	ACCE_ENABLE;
-	WriteSPI(0x23);
-	WriteSPI(0xc9);
-	ACCE_DISABLE;
-	Delay_ms(10);
-
-	ACCE_ENABLE;
-	WriteSPI(0x0f|0x80);
-	USARTSendU8(WriteSPI(0x00));
-	ACCE_DISABLE;
-	Delay_ms(10);
-
-	ACCE_ENABLE;
-	WriteSPI(0x23|0x80);
-	USARTSendU8(WriteSPI(0x00));
-	ACCE_DISABLE;
-
-	while(1){
-
-	}
 
 
 
-	B_ON;
+
+//	while(1){
+//		SET_BIT(led_flags,0);
+//	}
+
+
+
+//	B_ON;
 	//ACCE_ENABLE;
-	Delay_ms(500);
+//	Delay_ms(500);
 //	SetReg(0x23, 0xc9);
 //	SetReg(0x20, 0x97);
 //	SetReg(0x24, 0x00);
@@ -159,37 +142,37 @@ int main(){
 //	WriteReg(0x12, 0x00);                         // Output(Z) = Measurement(Z) - OFFSET(Z) * 32;
 
 	//Delay_ms(1000);
-	B_OFF;
+//	B_OFF;
 
 
 // ************************
 
-	while(1){
-		SET_BIT(led_flags,0);
-
-
-
-//		MSB = ReadReg(0x29);              // X-axis MSB
-//		LSB = ReadReg(0x28);              // X-axis LSB
-//		Xg = (MSB << 8) | (LSB);                  // Merging
-
-		//USARTSendU8(GetReg(0x0c));
-
-
-		USARTSendU8(GetReg(0x0f));
-		USARTSendU8(GetReg(0x23));
-		USARTSendU8(GetReg(0x20));
-		USARTSendU8(GetReg(0x24));
-		USARTSendU8(GetReg(0x16));
-//		USARTSendU16(GetReg(0x29));
-//		USARTSendU16(GetReg(0x28));
-
-		while(1)
-			SET_BIT(led_flags,0);
-
-		Delay_ms(1000);
-
-	}
+//	while(1){
+//		SET_BIT(led_flags,0);
+//
+//
+//
+////		MSB = ReadReg(0x29);              // X-axis MSB
+////		LSB = ReadReg(0x28);              // X-axis LSB
+////		Xg = (MSB << 8) | (LSB);                  // Merging
+//
+//		//USARTSendU8(GetReg(0x0c));
+//
+//
+//		USARTSendU8(GetReg(0x0f));
+//		USARTSendU8(GetReg(0x23));
+//		USARTSendU8(GetReg(0x20));
+//		USARTSendU8(GetReg(0x24));
+//		USARTSendU8(GetReg(0x16));
+////		USARTSendU16(GetReg(0x29));
+////		USARTSendU16(GetReg(0x28));
+//
+//		while(1)
+//			SET_BIT(led_flags,0);
+//
+//		Delay_ms(1000);
+//
+//	}
 
 
 
@@ -200,7 +183,7 @@ int main(){
 
 
 		adc_val=GetVoltage();
-/*
+
 		_puts("\x1b[15;0H");	// move to line 15
 		_puts("\x1b[2K\x1b[G");	// clear line
 
@@ -243,7 +226,7 @@ int main(){
 			duty=TIM1->CCR1;
 		}
 
-*/
+
 		Delay_ms(500);
 
 		// lis *******************
@@ -253,50 +236,50 @@ int main(){
 		_puts(str_buf);
 		_putsn("%");
 */
-		_puts("Battery voltage: ");
-		itoa(adc_val,str_buf,10);
-		_puts(str_buf);
-		_putsn(" mV ");
+//		_puts("Battery voltage: ");
+//		itoa(adc_val,str_buf,10);
+//		_puts(str_buf);
+//		_putsn(" mV ");
 
 
-		for(uint8_t i = 0; i < 100; i++) {             // getting 100 samples
+//		for(uint8_t i = 0; i < 100; i++) {             // getting 100 samples
+//
+////			MSB = SPI_ReceiveData(0x29);              // X-axis MSB
+////			LSB = SPI_ReceiveData(0x28);              // X-axis LSB
+////			Xg = (MSB << 8) | (LSB);                  // Merging
+////			x_array[i] = Xg;
+////
+////			MSB = SPI_ReceiveData(0x2d);              // Z-axis MSB
+////			LSB = SPI_ReceiveData(0x2c);              // Z-axis LSB
+////			Zg = (MSB << 8) | (LSB);                  // Merging
+////			z_array[i] = Zg;
+//		}
 
-			MSB = SPI_ReceiveData(0x29);              // X-axis MSB
-			LSB = SPI_ReceiveData(0x28);              // X-axis LSB
-			Xg = (MSB << 8) | (LSB);                  // Merging
-			x_array[i] = Xg;
 
-			MSB = SPI_ReceiveData(0x2d);              // Z-axis MSB
-			LSB = SPI_ReceiveData(0x2c);              // Z-axis LSB
-			Zg = (MSB << 8) | (LSB);                  // Merging
-			z_array[i] = Zg;
-		}
-
-
-	    Sort_Signed(x_array, 100);                  // Sorting min to max
-	    Sort_Signed(z_array, 100);                  // Sorting min to max
-
-	    x_average /= 80;                            // dividing by the number of samples used
-	    x_average /= -141;                          // converting to meters per second squared
-
-	    z_average /= 80;                            // dividing by the number of samples used
-	    z_average /= -141;                          // converting to meters per second squared
-
-	    zx_theta = gToDegrees(z_average, x_average);                // getting the degrees between Z and X planes
-
-	    _puts("X: ");
-	    itoa(x_average,str_buf,10);
-	    _putsn(str_buf);
-
-	    _puts("Z: ");
-	    itoa(z_average,str_buf,10);
-		_putsn(str_buf);
-
-		_puts("XZt: ");
-	   	 itoa(zx_theta,str_buf,10);
-		_putsn(str_buf);
-
-		_puts("\x1b[4A");
+//	    Sort_Signed(x_array, 100);                  // Sorting min to max
+//	    Sort_Signed(z_array, 100);                  // Sorting min to max
+//
+//	    x_average /= 80;                            // dividing by the number of samples used
+//	    x_average /= -141;                          // converting to meters per second squared
+//
+//	    z_average /= 80;                            // dividing by the number of samples used
+//	    z_average /= -141;                          // converting to meters per second squared
+//
+//	    zx_theta = gToDegrees(z_average, x_average);                // getting the degrees between Z and X planes
+//
+//	    _puts("X: ");
+//	    itoa(x_average,str_buf,10);
+//	    _putsn(str_buf);
+//
+//	    _puts("Z: ");
+//	    itoa(z_average,str_buf,10);
+//		_putsn(str_buf);
+//
+//		_puts("XZt: ");
+//	   	 itoa(zx_theta,str_buf,10);
+//		_putsn(str_buf);
+//
+//		_puts("\x1b[4A");
 
 		// ***********************
 	}

@@ -16,15 +16,15 @@
 
 void Lis3dhInit();
 
-uint8_t SetReg(uint8_t cbAddress, uint8_t cbData);
-uint8_t GetReg(uint8_t cbAddress);
-uint8_t WriteSPI(uint8_t cbData);
+uint8_t SetReg(uint8_t address, uint8_t data);
+uint8_t GetReg(uint8_t address);
+uint16_t WriteSPI(uint16_t data);
 
 //void SPI_SendData(uint8_t address, uint8_t data);
 //uint8_t SPI_ReceiveData(uint8_t address);
 //void SPI_SendFrame(uint8_t *data, uint8_t frame_len);
 
-//uint8_t ReadReg(uint8_t Reg);
-//void WriteReg(uint8_t Reg, uint8_t Data);
+uint8_t ReadReg(uint8_t Reg);
+void WriteReg(uint8_t Reg, uint8_t Data);
 
 #endif /* LIS3DH_H_ */
