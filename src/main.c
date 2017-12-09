@@ -19,7 +19,7 @@
 #include "adc.h"
 #include "lis3dh.h"
 #include "math.h"
-
+#include "crc.h"
 
 volatile uint8_t RxIndeksRS=0;
 volatile uint8_t RxBufRS[RS_BUFF];
@@ -54,11 +54,11 @@ int main(){
 
 	USARTInit();
 
-	_puts("\x1b[2J\x1b[H");  // clear terminal
-	_puts("\x1b[?25l");	// cursor invisible
+	_puts("\x1b[2J\x1b[H");  	// clear terminal
+	_puts("\x1b[?25l");			// cursor invisible
 
 	_putsn("QUADRO-COPTER MOTOR DRIVER v0.1");
-	_putsn("(C) 2017\r\n");
+	_putsn("(C) 2017 by Jarek\r\n");
 
 	_putsn("UATRT Init   OK");
 
@@ -456,9 +456,9 @@ void USART1_IRQHandler(){
 			RxBufRS[0]=0;
 		}
 
-		if(RxBufRS[0]=='/'){
-			NVIC_SystemReset();
-		}
+//		if(RxBufRS[0]=='/'){
+//			NVIC_SystemReset();
+//		}
 
 
 		else{

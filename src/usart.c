@@ -27,7 +27,7 @@ void USARTInit(){
 	// GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_0);
 
 	// usart
-	USART_InitStructure.USART_BaudRate 			  = 57600;
+	USART_InitStructure.USART_BaudRate 			  = 4800;
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStructure.USART_Mode				  = USART_Mode_Tx|USART_Mode_Rx;
 	USART_InitStructure.USART_Parity			  = USART_Parity_No;
